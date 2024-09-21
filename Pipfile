@@ -25,4 +25,4 @@ flask-mail = "*"
 coverage = "==4.3"
 
 [requires]
-python_version = "3.7"
+python_version = "3.9"

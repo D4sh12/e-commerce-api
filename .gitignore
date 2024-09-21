@@ -1,0 +1,16 @@
+__pycache__/
+
+.vscode/
+
+.env
+env
+
+README.md
+
+.pytest_cache
+
+htmlcov
+
+.DS_STORE
+
+.coverage

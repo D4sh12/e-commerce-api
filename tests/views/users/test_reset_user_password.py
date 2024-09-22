@@ -41,11 +41,15 @@ class TestPasswordResetEndpoints:
         """ Testing reset password """
 
         new_activated_user.save()
-        user_data = json.dumps(RESET_PASSWORD_NEW_PASSWORD)
-        token = generate_user_token(new_activated_user.id)
+        reset_code = new_activated_user.reset_code
+        user_data = json.dumps({
+            "email": new_activated_user.email,
+            "reset_code": reset_code,
+            "new_password": RESET_PASSWORD_NEW_PASSWORD["password"]
+        })
 
-        response = client.patch(
-            f'{API_BASE_URL}/auth/reset-password/{token}',
+        response = client.post(
+            f'{API_BASE_URL}/auth/reset-password/verify-code',
             data=user_data, content_type=CONTENT_TYPE)
         message = 'User password successfully changed'
 
@@ -53,18 +57,20 @@ class TestPasswordResetEndpoints:
         assert response.json['status'] == 'success'
         assert response.json['message'] == message
 
-    def test_reset_password_with_invalid_token_fails(self, client, init_db, new_activated_user):
-        """ Testing reset password with invalid token """
+    def test_reset_password_with_invalid_code_fails(self, client, init_db, new_activated_user):
+        """ Testing reset password with invalid code """
 
         new_activated_user.save()
-        user_data = json.dumps(RESET_PASSWORD_NEW_PASSWORD)
-        token = generate_user_token(new_activated_user.id, expires_sec=0)
-        time.sleep(1)
+        user_data = json.dumps({
+            "email": new_activated_user.email,
+            "reset_code": "123456",
+            "new_password": RESET_PASSWORD_NEW_PASSWORD["password"]
+        })
 
-        response = client.patch(
-            f'{API_BASE_URL}/auth/reset-password/{token}',
+        response = client.post(
+            f'{API_BASE_URL}/auth/reset-password/verify-code',
             data=user_data, content_type=CONTENT_TYPE)
-        message = 'Password reset token is invalid'
+        message = 'Invalid reset code'
 
         assert response.status_code == 400
         assert response.json['status'] == 'error'

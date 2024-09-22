@@ -118,11 +118,11 @@ class UserLoginResource(Resource):
 
 @user_namespace.route("/reset-password")
 class ResetRequestResource(Resource):
-    """ " Resource class for user password reset request"""
+    """ Resource class for user password reset request"""
 
     @user_namespace.expect(reset_request_model)
     def post(self):
-        """Endpoint to request password reset link"""
+        """Endpoint to request password reset code"""
 
         request_data = request.get_json()
         email = request_data["email"]
@@ -131,6 +131,9 @@ class ResetRequestResource(Resource):
         if not user:
             error_response["message"] = "User not found"
             return error_response, 404
+
+        reset_code = ''.join(random.choices(string.digits, k=6))
+        user.update({"reset_code": reset_code})
 
         user_schema = UserSchema()
         send_email(
@@ -145,28 +148,31 @@ class ResetRequestResource(Resource):
         }, 200
 
 
-@user_namespace.route("/reset-password/<string:token>")
-class PasswordResetResource(Resource):
-    """ " Resource class for user password reset"""
+@user_namespace.route("/reset-password/verify-code")
+class PasswordResetVerifyCodeResource(Resource):
+    """ Resource class for verifying reset code and changing password """
 
     @user_namespace.expect(reset_password_model)
-    def patch(self, token):
-        """Endpoint to rest user password"""
-
-        user = verify_user_token(token)
-
-        if not user:
-            error_response["message"] = "Password reset token is invalid"
-            return error_response, 400
+    def post(self):
+        """Endpoint to verify reset code and change the user password"""
 
         request_data = request.get_json()
-        UserValidators.validate_password(request_data["password"])
-        request_data = request_data_strip(request_data)
-        bytes_password = bytes(request_data["password"], encoding="utf-8")
+        email = request_data.get("email")
+        reset_code = request_data.get("reset_code")
+        new_password = request_data.get("new_password")
+
+        user = User.query.filter_by(email=email).first()
+
+        if user is None or user.reset_code != reset_code:
+            error_response["message"] = "Invalid reset code"
+            return error_response, 400
+
+        UserValidators.validate_password(new_password)
+        bytes_password = bytes(new_password, encoding="utf-8")
         hashed = bcrypt.hashpw(bytes_password, bcrypt.gensalt(10))
         password = hashed.decode("utf-8")
 
-        user.update({"password": password})
+        user.update({"password": password, "reset_code": None})
 
         return {
             "status": "success",

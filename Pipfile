@@ -13,10 +13,10 @@ pytest-cov = "*"
 
 [packages]
 flask = "*"
-flask-restplus = "*"
+flask_restx = "*"
 flask-migrate = "*"
 gunicorn = "*"
-Werkzeug = "==0.16.1"
+Werkzeug = "*"
 python-dotenv = "*"
 flask-sqlalchemy = "*"
 psycopg2-binary = "*"

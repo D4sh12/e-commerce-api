@@ -1,6 +1,6 @@
 """ Module for Swagger brand models """
 
-from flask_restplus import fields
+from flask_restx import fields
 from ..collections import (brand_namespace)
 
 brand_model = brand_namespace.model('Brand', {

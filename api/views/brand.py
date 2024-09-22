@@ -1,7 +1,7 @@
 """ Module for brands endpoints """
 
 from flask import request
-from flask_restplus import Resource
+from flask_restx import Resource
 from api.models.brand import Brand
 from api.schemas.brand import BrandSchema
 from api.middlewares.permission_required import permission_required

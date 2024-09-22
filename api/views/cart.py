@@ -1,7 +1,7 @@
 """ Module for cart endpoints """
 
 from flask import request
-from flask_restplus import Resource
+from flask_restx import Resource
 from api.models.cart import Cart
 from api.models.product import Product
 from api.models.cart_item import CartItem

@@ -1,7 +1,7 @@
 """ Module for order endpoints """
 
 from flask import request
-from flask_restplus import Resource
+from flask_restx import Resource
 from api.models.order import Order
 from api.models.order_item import OrderItem
 from api.schemas.order import OrderSchema

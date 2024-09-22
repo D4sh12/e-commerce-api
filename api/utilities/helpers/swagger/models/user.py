@@ -1,6 +1,6 @@
 """ Module for Swagger user models """
 
-from flask_restplus import fields
+from flask_restx import fields
 from ..collections import (user_namespace)
 
 signup_model = user_namespace.model('Signup', {

@@ -1,6 +1,6 @@
 """ Module for Swagger cart models """
 
-from flask_restplus import fields
+from flask_restx import fields
 from ..collections import (user_namespace)
 
 cart_item_model = user_namespace.model('CartItem', {

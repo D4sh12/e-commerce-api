@@ -1,7 +1,7 @@
 """ Module for users endpoints """
 
 from flask import request
-from flask_restplus import Resource
+from flask_restx import Resource
 import bcrypt
 from api.utilities.helpers import request_data_strip
 from api.utilities.helpers.swagger.collections import user_namespace

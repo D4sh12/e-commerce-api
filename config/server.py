@@ -1,7 +1,7 @@
 """ Module for Server configuration """
 
 from flask import Flask, Blueprint
-from flask_restplus import Api
+from flask_restx import Api
 from flask_mail import Mail
 from config.environment import AppConfig
 

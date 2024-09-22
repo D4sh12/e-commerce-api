@@ -1,6 +1,6 @@
 """ Module for Swagger order models """
 
-from flask_restplus import fields
+from flask_restx import fields
 from ..collections import (user_namespace)
 
 # order_model = user_namespace.model('Order', {

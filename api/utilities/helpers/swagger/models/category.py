@@ -1,6 +1,6 @@
 """ Module for Swagger category models """
 
-from flask_restplus import fields
+from flask_restx import fields
 from ..collections import (category_namespace)
 
 category_model = category_namespace.model('Category', {

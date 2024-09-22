@@ -1,6 +1,6 @@
 """ Module for Swagger product models """
 
-from flask_restplus import fields
+from flask_restx import fields
 from ..collections import (product_namespace)
 
 product_model = product_namespace.model('Product', {

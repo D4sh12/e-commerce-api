@@ -3,7 +3,7 @@
 import datetime
 import os
 import jwt
-from itsdangerous import TimedJSONWebSignatureSerializer as Serializer
+from itsdangerous import URLSafeTimedSerializer as Serializer
 from dotenv import load_dotenv
 from api.models.user import User
 

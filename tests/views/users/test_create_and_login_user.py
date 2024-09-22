@@ -213,3 +213,55 @@ class TestUserEndpoints:
         assert response2.status_code == 404
         assert response2.json['status'] == 'error'
         assert response2.json['message'] == message
+
+    def test_user_activation_via_confirmation_code_succeeds(self, client, new_user):
+        """ Testing User activation via confirmation code """
+
+        new_user.save()
+        confirmation_code = new_user.confirmation_code
+        response = client.post(
+            f'{API_BASE_URL}/auth/verify-code',
+            json={"email": new_user.email, "confirmation_code": confirmation_code}
+        )
+
+        assert response.status_code == 200
+        assert response.json['status'] == 'success'
+        assert response.json['message'] == 'User successfully activated'
+
+    def test_user_activation_via_invalid_confirmation_code_fails(self, client, new_user):
+        """ Testing User activation via invalid confirmation code """
+
+        new_user.save()
+        response = client.post(
+            f'{API_BASE_URL}/auth/verify-code',
+            json={"email": new_user.email, "confirmation_code": "123456"}
+        )
+
+        assert response.status_code == 400
+        assert response.json['status'] == 'error'
+        assert response.json['message'] == 'Invalid confirmation code'
+
+    def test_resend_confirmation_code_succeeds(self, client, new_user):
+        """ Testing resending confirmation code """
+
+        new_user.save()
+        response = client.post(
+            f'{API_BASE_URL}/auth/resend-code',
+            json={"email": new_user.email}
+        )
+
+        assert response.status_code == 200
+        assert response.json['status'] == 'success'
+        assert response.json['message'] == 'Confirmation code successfully resent. Please check your email to continue.'
+
+    def test_resend_confirmation_code_with_invalid_email_fails(self, client):
+        """ Testing resending confirmation code with invalid email """
+
+        response = client.post(
+            f'{API_BASE_URL}/auth/resend-code',
+            json={"email": "invalidemail@example.com"}
+        )
+
+        assert response.status_code == 404
+        assert response.json['status'] == 'error'
+        assert response.json['message'] == 'User not found'

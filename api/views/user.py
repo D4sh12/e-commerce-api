@@ -3,6 +3,8 @@
 from flask import request
 from flask_restx import Resource
 import bcrypt
+import random
+import string
 from api.utilities.helpers import request_data_strip
 from api.utilities.helpers.swagger.collections import user_namespace
 from api.utilities.helpers.swagger.models.user import (
@@ -10,6 +12,8 @@ from api.utilities.helpers.swagger.models.user import (
     login_model,
     reset_request_model,
     reset_password_model,
+    confirm_code_request_model,
+    resend_code_request_model,
 )
 from api.utilities.helpers.responses import success_response, error_response
 from api.utilities.validators.user import UserValidators
@@ -36,6 +40,9 @@ class UserSignupResource(Resource):
         bytes_password = bytes(request_data["password"], encoding="utf-8")
         hashed = bcrypt.hashpw(bytes_password, bcrypt.gensalt(10))
         request_data["password"] = hashed.decode("utf-8")
+
+        confirmation_code = "".join(random.choices(string.digits, k=6))
+        request_data["confirmation_code"] = confirmation_code
 
         new_user = User(**request_data)
         new_user.save()
@@ -164,4 +171,69 @@ class PasswordResetResource(Resource):
         return {
             "status": "success",
             "message": "User password successfully changed",
+        }, 200
+
+
+@user_namespace.route("/verify-code")
+class UserVerifyCodeResource(Resource):
+    """Resource class for user account verification via confirmation code"""
+    
+    @user_namespace.expect(confirm_code_request_model)
+    def post(self):
+        """Endpoint to verify the user account via confirmation code"""
+
+        request_data = request.get_json()
+        email = request_data.get("email")
+        confirmation_code = request_data.get("confirmation_code")
+
+        user = User.query.filter_by(email=email).first()
+
+        if user.is_activated:
+            error_response["message"] = "User account already activated"
+            return error_response, 400
+
+        if user is None or user.confirmation_code != confirmation_code:
+            error_response["message"] = "Invalid confirmation code"
+            return error_response, 400
+
+
+        user.update({"is_activated": True, "confirmation_code": None})
+        user_cart = Cart(user_id=user.id)
+        user_cart.save()
+
+        return {"status": "success", "message": "User successfully activated"}, 200
+
+
+@user_namespace.route("/resend-code")
+class ResendCodeResource(Resource):
+    """Resource class for resending the confirmation code"""
+
+    @user_namespace.expect(resend_code_request_model)
+    def post(self):
+        """Endpoint to resend the confirmation code"""
+
+        request_data = request.get_json()
+        email = request_data.get("email")
+
+        user = User.query.filter_by(email=email).first()
+
+        if user is None:
+            error_response["message"] = "User not found"
+            return error_response, 404
+
+        if user.is_activated:
+            error_response["message"] = "User account already activated"
+            return error_response, 400
+
+        confirmation_code = "".join(random.choices(string.digits, k=6))
+        user.update({"confirmation_code": confirmation_code})
+
+        user_schema = UserSchema()
+        user_data = user_schema.dump(user)
+
+        send_email(user_data, "Confirmation Email", "confirmation_email.html")
+
+        return {
+            "status": "success",
+            "message": "Confirmation code successfully resent. Please check your email to continue.",
         }, 200

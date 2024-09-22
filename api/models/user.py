@@ -15,6 +15,7 @@ class User(BaseModel):
     password = db.Column(db.String(250), nullable=False)
     is_admin = db.Column(db.Boolean, default=False, nullable=False)
     is_activated = db.Column(db.Boolean, default=False, nullable=False)
+    confirmation_code = db.Column(db.String(6), nullable=True)
 
     @classmethod
     def find_by_email(cls, user_email):

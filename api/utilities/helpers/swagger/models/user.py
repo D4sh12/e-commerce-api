@@ -19,6 +19,15 @@ reset_request_model = user_namespace.model('Password Reset Request', {
     'email': fields.String(required=True, description='User email')
 })
 
+confirm_code_request_model = user_namespace.model('Confirm Code Request', {
+    'email': fields.String(required=True, description='User email'),
+    'confirmation_code': fields.String(required=True, description='Confirmation Code')
+})
+
+resend_code_request_model = user_namespace.model('Resend Confirmation Code Request', {
+    'email': fields.String(required=True, description='User email')
+})
+
 reset_password_model = user_namespace.model('Password Reset', {
     'password': fields.String(required=True, description='User new password')
 })

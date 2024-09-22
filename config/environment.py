@@ -18,6 +18,13 @@ class Config(object):
     MAIL_PASSWORD = getenv('MAIL_PASSWORD')
 
 
+class ProductionConfig(Config):
+    """ App production configuration """
+
+    PORT = 8000
+    SQLALCHEMY_DATABASE_URI = getenv('DATABASE_URL')
+
+
 class DevelopmentConfig(Config):
     """ App Development configuration """
 
@@ -36,6 +43,7 @@ class TestingConfig(Config):
 
 config = {
     'development': DevelopmentConfig,
+    'production': ProductionConfig,
     'testing': TestingConfig
 }
 
